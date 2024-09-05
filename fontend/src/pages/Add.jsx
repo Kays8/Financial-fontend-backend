@@ -17,41 +17,41 @@ const Add = () => {
     SetFinancials({ ...financials, [name]: value });
   };
 
-  const handSubmit = async (e) => {
+  const handSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/financial/",
-        financials
-      );
-      if (response.status === 200) {
+    axios
+      .post("http://localhost:5000/api/v1/financial/", financials)
+      .then((response) => {
+        if (response.status === 200) {
+          return Swal.fire({
+            title: "Add Financial tracker!",
+            text: "Financial tracker has been added successfully.",
+            icon: "success",
+          });
+        }
+        throw new Error("Failed to add financial tracker");
+      })
+      .then(() => {
+        // รีโหลดหน้าเว็บ
+        window.location.reload();
+      })
+      .catch((error) => {
         Swal.fire({
-          title: "Add Financial tracker!",
-          text: "Financial tracker has been added successfully.",
-          icon: "success",
+          title: "Add Financial tracker",
+          text: error?.response?.data?.message || error.message,
+          icon: "error",
         });
-        SetFinancials({
-          name: "",
-          type: "",
-          imageUrl: "",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        title: "Add Financial tracker",
-        text: error?.response?.data?.message || error.message,
-        icon: "error",
       });
-    }
   };
 
   return (
     <div className="max-w-md mx-auto p-8 rounded-lg  space-y-6">
-      <span>Financial Tracter</span>
-      <p>Welcome!, ______________</p>
-      <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-96">
+      <h1 class="text-4xl font-bold text-center mb-8">Financial Tracker</h1>
+      <p className="font-medium ">Welcome!, ______________</p>
+      <form className="bg-white drop-shadow-xl rounded px-8 pt-6 pb-8 mb-4 w-96 text-start">
         <div className="relative">
-          <span>userId</span>
+          <span className="font-medium text-lg ">UserId</span>
+
           <input
             type="text"
             className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -61,8 +61,8 @@ const Add = () => {
             onChange={handleChange}
           />
         </div>
-        <div className="relative">
-          <span>Description</span>
+        <div className="relative pt-3">
+          <span className="font-medium text-lg ">Description</span>
           <input
             type="text"
             className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -73,10 +73,10 @@ const Add = () => {
           />
         </div>
 
-        <div className="relative">
-          <span>Amount</span>
+        <div className="relative pt-3">
+          <span className="font-medium text-lg">Amount</span>
           <input
-            type="text"
+            type="number"
             className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             placeholder="Amount"
             name="amount"
@@ -85,32 +85,8 @@ const Add = () => {
           />
         </div>
 
-        <div className="relative">
-          <span>Cetagory</span>
-          <input
-            type="text"
-            className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-            placeholder="Cetagory"
-            name="category"
-            value={financials.category}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="relative">
-          <span>Payment</span>
-          <input
-            type="text"
-            className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-            placeholder="Payment Method"
-            name="paymentMethod"
-            value={financials.paymentMethod}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="relative">
-          <span>Date</span>
+        <div className="relative pt-3">
+          <span className="font-medium text-lg">Date</span>
           <input
             type="Date"
             className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -119,15 +95,53 @@ const Add = () => {
             value={financials.date}
             onChange={handleChange}
           />
-          <div className="mb-6 text-center pt-5">
-            <button
-              className="btn btn-primary"
-              type="submit"
-              onClick={handSubmit}
-            >
-              ส่งข้อมูล
-            </button>
-          </div>
+        </div>
+
+        <div className="relative pt-3">
+          <span className="font-medium text-lg">Category</span>
+          <select
+            className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+            name="category"
+            value={financials.category}
+            onChange={handleChange}
+          >
+            <option value="" disabled>
+              Select a category
+            </option>
+            <option value="Food">Food</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+            <option value="Drink">Drink</option>
+            {/* เพิ่มตัวเลือกหมวดหมู่ที่คุณต้องการ */}
+          </select>
+        </div>
+
+        <div className="relative pt-3">
+          <span className="font-medium text-lg">Payment Medthod</span>
+          <select
+            className="w-full pl-12 pr-4 py-3 text-lg border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+            name="paymentMethod"
+            value={financials.paymentMethod}
+            onChange={handleChange}
+          >
+            <option value="" disabled>
+              Select a Payment
+            </option>
+            <option value="Cash">Cash</option>
+            <option value="Online Banking">Bank Transfer</option>
+            <option value="Visa & MasterCard">Visa & MasterCard</option>
+          </select>
+        </div>
+
+        <div className="mb-6 text-center pt-5">
+          <button
+            className="btn btn-primary"
+            type="submit"
+            onClick={handSubmit}
+          >
+            ส่งข้อมูล
+          </button>
         </div>
       </form>
     </div>
