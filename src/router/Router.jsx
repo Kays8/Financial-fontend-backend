@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Dashboard from "../pages/dashboard/index";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
+import EditFinancial from "../pages/EditFinancial";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         path: "/Dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "/Edit",
+        element: <EditFinancial />,
       },
     ],
   },

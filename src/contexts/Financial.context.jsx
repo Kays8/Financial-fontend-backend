@@ -1,67 +1,63 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import FinancialService from "../services/Financial.service";
 import { useUser } from "@clerk/clerk-react";
+import FinancialService from "./../services/Financial.service";
 
-export const FinancialContext = createContext();
-
+export const FinancialRecordContext = createContext();
 // eslint-disable-next-line react/prop-types
-export const FinancialProcider = ({ children }) => {
+export const FinancialRecordProvider = ({ children }) => {
   const [records, setRecords] = useState([]);
   const { user } = useUser();
-
   const fetchRecords = async () => {
     if (!user) return;
     try {
       const response = await FinancialService.getFinancialByUserId(user.id);
       if (response.status === 200) {
-        setRecords(response.date);
+        setRecords(response.data);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     fetchRecords();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const add_Financial = async (financial) => {
-    console.log("Adding financial: ", financial);
+  //Add Record to FinancialRecord
+  const addRecord = async (record) => {
     try {
-      const response = await FinancialService.createFinancial(financial);
-      console.log("Response from FinancialService: ", response);
+      const response = await FinancialService.createFinancial(record);
       if (response.status === 200) {
         setRecords((prev) => [...prev, response.data]);
-        return response;
-      } else {
-        console.error("Financail to add record:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error in add_Financial:", error);
-    }
-  };
-
-  const update_Financial = async (id, newFinancial) => {
-    try {
-      const response = await FinancialService.editFinancial(id, newFinancial);
-      if (response.status === 200) {
-        setRecords((prev) =>
-          prev.map((record) => {
-            if (record.id === id) {
-              return newFinancial;
-            } else return record;
-          })
-        );
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const delete_Financial = async (id) => {
+  //Edit Record in FinancialRecord
+  const editRecord = async (id, newRecord) => {
     try {
-      const response = FinancialService.deleteFinancial(id);
+      const response = await FinancialService.editFinancial(id, newRecord);
+      if (response.status === 200) {
+        setRecords((prev) => {
+          prev.map((record) => {
+            if (record.id === id) {
+              return newRecord;
+            } else {
+              return record;
+            }
+          });
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //Delete Record in FinancialRecord
+  const deleteRecord = async (id) => {
+    try {
+      const response = await FinancialService.deleteFinancial(id);
       if (response.status === 200) {
         setRecords((prev) => prev.filter((record) => record.id !== id));
       }
@@ -69,15 +65,14 @@ export const FinancialProcider = ({ children }) => {
       console.log(error);
     }
   };
-
   return (
-    <FinancialContext.Provider
-      value={{ records, add_Financial, update_Financial, delete_Financial }}
+    <FinancialRecordContext.Provider
+      value={{ records, addRecord, editRecord, deleteRecord }}
     >
       {children}
-    </FinancialContext.Provider>
+    </FinancialRecordContext.Provider>
   );
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useFinancial = () => useContext(FinancialContext);
+export const useFinancialRecords = () => useContext(FinancialRecordContext);

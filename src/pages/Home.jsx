@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div>
       <SignedOut>
-        <h1 className="text-4xl md:text-5xl md:leading-snug font-bold my-2">
+        <h1 className="text-4xl md:text-5xl md:leading-snug font-bold my-2 ">
           Welcome to your own Personal Financial Tracker
         </h1>
       </SignedOut>
